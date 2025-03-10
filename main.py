@@ -8,6 +8,7 @@ import uvicorn
 from mem0 import MemoryClient
 from dotenv import load_dotenv
 import json
+import os
 
 load_dotenv()
 
@@ -16,7 +17,10 @@ mcp = FastMCP("mem0-mcp")
 
 # Initialize mem0 client and set default user
 mem0_client = MemoryClient()
-DEFAULT_USER_ID = "cursor_mcp"
+# Check if DEFAULT_USER_ID environment variable is set
+if 'DEFAULT_USER_ID' not in os.environ:
+    raise ValueError("DEFAULT_USER_ID environment variable is required but not set. Please set it before running the application.")
+DEFAULT_USER_ID = os.environ['DEFAULT_USER_ID']  # Required environment variable
 CUSTOM_INSTRUCTIONS = """
 Extract the Following Information:  
 
@@ -165,4 +169,4 @@ if __name__ == "__main__":
     # Bind SSE request handling to MCP server
     starlette_app = create_starlette_app(mcp_server, debug=True)
 
-    uvicorn.run(starlette_app, host=args.host, port=args.port)
+    uvicorn.run(starlette_app, host=args.host, port=args.port, reload=True)
